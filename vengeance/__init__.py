@@ -28,10 +28,13 @@ class StdOutListener(StreamListener):
     This is a basic listener that just prints received tweets to stdout.
 
     """
-    def on_data(self, data):
-        decoded = json.loads(data)
-        print decoded['user']['screen_name'], decoded['text']
-        return True
+    def on_status(self, status):
+        tweet = status.text.lower()
+        print tweet
+        if 'on sale now' in tweet:
+            return False
+        else:
+            return True
 
     def on_error(self, status):
         print status
