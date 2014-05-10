@@ -1,6 +1,11 @@
+
+# Standard Imports
+import json
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
+
+# Vengeance Imports
 from config import Config
 
 v_config = Config('../config.ini')
@@ -24,7 +29,8 @@ class StdOutListener(StreamListener):
 
     """
     def on_data(self, data):
-        print data['text']
+        decoded = json.loads(data)
+        print decoded['user']['screen_name'], decoded['text']
         return True
 
     def on_error(self, status):
