@@ -1,9 +1,6 @@
 
 # Standard Imports
-import json
-from tweepy.streaming import StreamListener
-from tweepy import OAuthHandler
-from tweepy import Stream
+from tweepy import OAuthHandler, Stream, StreamListener
 
 # Vengeance Imports
 from config import Config
