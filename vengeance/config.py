@@ -50,6 +50,9 @@ class Config(object):
         self._config.read(config_file)
 
         self._oauth = self._read_oauth()
+        self._twitter_user = self._config.get('Target', "TwitterHandle")
+        if self._twitter_user.startswith('@'):
+            self._twitter_user = self._twitter_user[1:]
         self._base_url = self._config.get('Target', 'BaseURL')
         self._targets = self._read_targets()
 
@@ -66,6 +69,11 @@ class Config(object):
     def base_url(self):
         """Returns the base URL we are targeting"""
         return self._base_url
+
+    @property
+    def twitter_user(self):
+        """Returns the twitter user we want to watch"""
+        return self._twitter_user
 
     @property
     def targets(self):
