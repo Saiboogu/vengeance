@@ -4,6 +4,7 @@ from tweepy import Stream
 from config import Config
 
 v_config = Config('../config.ini')
+v_config.debug()
 
 # Go to http://dev.twitter.com and create an app.
 # The consumer key and secret will be generated for you after

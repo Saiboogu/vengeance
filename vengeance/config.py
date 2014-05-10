@@ -138,3 +138,13 @@ class Config(object):
                 section, keys[i]
             ) for i in xrange(len(keys))
         }
+
+    # Public Methods ==========================================================
+
+    def debug(self):
+        """Prints all attributes"""
+        print 'Oauth:', self.oauth
+        print 'Twitter User:', self.twitter_user
+        print 'Base URL:', self.base_url
+        print 'Targets:', self.targets
+        print 'Consumer:', self.consumer
