@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 """
 
-Vengeance
-=========
+Streamer
+========
 
-Watches a twitter handle for an 'on sale now' text string, then attempts to
-buy indicated items from a store's website in a speedy fashion. Designed
-after a seller's continued, repeated refusal to update their drop system
-to something that would more discourage scalpers.
-
-Designed to hopefully be faster than the scalpers themselves.
+Stores streaming objects and functions
 
 ## License
 
@@ -41,36 +36,57 @@ SOFTWARE.
 # IMPORTS
 # =============================================================================
 
-# Vengeance Imports
-from config import Config
-from streamer import sale_watch
+# Standard Imports
+from tweepy import OAuthHandler, Stream, StreamListener
 
 # =============================================================================
 # GLOBALS
 # =============================================================================
 
-# =============================================================================
-# MAIN
-# =============================================================================
-
-
-def main():
-    """Main script for vengeance"""
-
-    # Note that we're reading from config.ini
-    # sample_config.ini should be filled out and renamed.
-    #
-    # DO NOT COMMIT A FILLED OUT CONFIG.INI TO THE REPOSITORY.
-    v_config = Config('../config.ini')
-    v_config.debug()
-
-    sale_watch(v_config)
-
-    print 'done'
+__all__ = [
+    'SaleListener',
+    'sale_watch',
+]
 
 # =============================================================================
-# RUNNER
+# CLASSES
 # =============================================================================
 
-if __name__ == '__main__':
-    main()
+
+class SaleListener(StreamListener):
+    """ A listener handles tweets are the received from the stream."""
+    def on_status(self, status):
+        tweet = status.text.lower()
+        print tweet
+        if 'nba' in tweet:
+            return False
+        else:
+            return True
+
+    def on_error(self, status):
+        print status
+
+# =============================================================================
+# PUBLIC FUNCTIONS
+# =============================================================================
+
+
+def sale_watch(config):
+    """Uses a twitter stream to watch for a sale"""
+
+    # Go to http://dev.twitter.com and create an app.
+    # The consumer key and secret will be generated for you after
+    consumer_key = config.oauth['ConsumerKey']
+    consumer_secret = config.oauth['ConsumerSecret']
+
+    # After the step above, you will be redirected to your app's page.
+    # Create an access token under the the "Your access token" section
+    access_token = config.oauth['AccessToken']
+    access_token_secret = config.oauth['AccessTokenSecret']
+
+    listener = SaleListener()
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
+    stream = Stream(auth, listener)
+    stream.filter(track=['basketball'])
