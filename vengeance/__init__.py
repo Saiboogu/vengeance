@@ -42,6 +42,7 @@ SOFTWARE.
 # =============================================================================
 
 # Vengeance Imports
+from browser import BuyerSelenium
 from config import Config
 from streamer import sale_watch
 
@@ -64,7 +65,9 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
-    sale_watch(v_config)
+    buyer = BuyerSelenium(v_config)
+
+    sale_watch(v_config, buyer)
 
     print 'done'
 

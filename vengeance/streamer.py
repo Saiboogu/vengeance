@@ -55,10 +55,15 @@ __all__ = [
 
 class SaleListener(StreamListener):
     """ A listener handles tweets are the received from the stream."""
+    def __init__(self, buyer):
+        super(SaleListener, self).__init__()
+        self.buyer = buyer
+
     def on_status(self, status):
         tweet = status.text.lower()
         print tweet
         if 'nba' in tweet:
+            self.buyer.run()
             return False
         else:
             return True
@@ -71,7 +76,7 @@ class SaleListener(StreamListener):
 # =============================================================================
 
 
-def sale_watch(config):
+def sale_watch(config, buyer):
     """Uses a twitter stream to watch for a sale"""
 
     # Go to http://dev.twitter.com and create an app.
@@ -84,7 +89,7 @@ def sale_watch(config):
     access_token = config.oauth['AccessToken']
     access_token_secret = config.oauth['AccessTokenSecret']
 
-    listener = SaleListener()
+    listener = SaleListener(buyer)
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
 

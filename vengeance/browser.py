@@ -60,6 +60,8 @@ class BuyerSelenium(object):
         self._config = config
         self._driver = webdriver.Firefox()
 
+    # Properties ==============================================================
+
     @property
     def config(self):
         return self._config
@@ -76,28 +78,112 @@ class BuyerSelenium(object):
         )
         return url
 
-    def fill_form_dict(self, form_dict):
+    # Private Methods =========================================================
+
+    def _fill_form_dict(self, form_dict):
         """Fills an entire form using a dictionary to dictate name & values"""
         for form in form_dict:
-            self.fill_form(form, form_values[form])
+            self._fill_form_item(form, form_dict[form])
 
-    def fill_form_item(self, name, value):
+    # =========================================================================
+
+    def _fill_form_item(self, name, value):
         """Fills a single form item"""
         form = self.driver.find_element_by_name(name)
         form.send_keys(value)
 
-    def get_links(self):
+    # =========================================================================
+
+    def _get_links(self):
         """Fetches all links from the current page and returns as list"""
         return self.driver.find_elements_by_tag_name('a')
+
+    # =========================================================================
+
+    def _xpath_select_dict(self, select_dict):
+        """Does multiple section boxes based on incoming selection dict"""
+        for select in select_dict:
+            self._xpath_select_item(select, select_dict[select])
+
+    # =========================================================================
+
+    def _xpath_select_item(self, name, value):
+        """Selects a specified text element from dropdown"""
+        self.driver.find_element_by_xpath(
+            "//select[@name='{form_name}']"
+            "/option[text()='{form_value}']".format(
+                form_name=name,
+                form_value=value
+            )
+        ).click()
+
+    # Public Methods ==========================================================
+
+    def check_out(self, dry_run=True):
+        """Hits the final checkout button"""
+        check_out_btn = self.driver.find_element_by_name('divCheckout')
+        if not dry_run:
+            check_out_btn.click()
+
+    # =========================================================================
+
+    def fill_billing(self):
+        """Fills out billing page"""
+        # Use shipping for billing
+        self.driver.find_element_by_name('check1').click()
+
+        # Credit Card Number and CVV2
+        self._fill_form_dict(
+            {
+                'ff11_ocardno': self.config.consumer['CCN'],
+                'ff11_ocardcvv2': self.config.consumer['CVV']
+            }
+        )
+
+        # Exp Month, Year and Card Type
+        self._xpath_select_dict(
+            {
+                'ff11_ocardexpiresmonth': self.config.consumer['ExpMo'],
+                'ff11_ocardexpiresyear': self.config.consumer['ExpYr'],
+                'ff11_ocardtype': self.config.consumer['Type'],
+            }
+        )
+
+    # =========================================================================
+
+    def fill_shipping(self):
+        """Fills out shipping page"""
+
+        shipping_values = {
+            'email': self.config.consumer['Email'],
+            'shipping_firstname': self.config.consumer['FirstName'],
+            'shipping_lastname': self.config.consumer['LastName'],
+            'shipping_phone': self.config.consumer['Phone'],
+            'shipping_address': self.config.consumer['Address'],
+            'shipping_city': self.config.consumer['City'],
+            'shipping_zip': self.config.consumer['Zip'],
+        }
+
+        self._fill_form_dict(shipping_values)
+
+        # State and Country
+        self._xpath_select_dict(
+            {
+                'shipping_country': self.config.consumer['Country'],
+                'shipping_state': self.config.consumer['State']
+            }
+        )
+
+    # =========================================================================
 
     def run(self):
         self.driver.get(self.build_url('view_category.asp?cat=12'))
 
         # Find the link we want
-        links = self.get_links()
+        links = self._get_links()
         for link in links:
             href = link.get_attribute('href').lower()
-            if self.config.targets[0].lower() in href:
+            if self.config.targets.keys()[0].lower() in href:
                 link.click()
                 break
 
@@ -107,69 +193,14 @@ class BuyerSelenium(object):
         # Head to checkout
         self.driver.get(self.build_url('checkout.asp?step=1'))
 
-# =============================================================================
-# PUBLIC FUNCTIONS
-# =============================================================================
+        # Fill Shipping Page
+        self.fill_shipping()
 
-if __name__ == '__main__':
-    driver = webdriver.Firefox()
-    driver.get('')
+        # Leave Shipping Page
+        self.driver.find_element_by_name("Add22").click()
 
-    links = driver.find_elements_by_tag_name('a')
-    for link in links:
-        href = link.get_attribute('href').lower()
-        if '' in href:
-            link.click()
-            break
+        # Fill Billing Page
+        self.fill_billing()
 
-    # Add To Cart
-    driver.find_element_by_name('Add').click()
-
-    # Proceed to Checkout
-    driver.find_element_by_xpath("//input[@value='Proceed to Checkout']").click()
-
-    def fill_form(name, value):
-        form = driver.find_element_by_name(name)
-        driver.implicitly_wait(0.1)
-        form.send_keys(value)
-
-    form_values = {
-        'email': 'blah@gmail.com',
-        'shipping_firstname': 'first_name',
-        'shipping_lastname': 'last_name',
-        'shipping_company': 'company',
-        'shipping_phone': '8183456578',
-        'shipping_address': '2671 address',
-        'shipping_address2': 'apt 5',
-        'shipping_city': 'Hilo',
-        'shipping_zip': '90066'
-    }
-
-    for form in form_values:
-        fill_form(form, form_values[form])
-
-    # Country
-    driver.find_element_by_xpath("//select[@name='shipping_country']/option[text()='United States']").click()
-
-    # State
-    driver.find_element_by_xpath("//select[@name='shipping_state']/option[text()='California']").click()
-
-    driver.find_element_by_name("Add22").click()
-
-    use_shipping = driver.find_element_by_name('check1')
-    use_shipping.click()
-
-    cc_num = driver.find_element_by_name('ff11_ocardno')
-    cc_num.send_keys('32168712368')
-
-    # Exp Month and Year
-    driver.find_element_by_xpath("//select[@name='ff11_ocardexpiresmonth']/option[text()='12']").click()
-    driver.find_element_by_xpath("//select[@name='ff11_ocardexpiresyear']/option[text()='2020']").click()
-
-    # Card Type
-    driver.find_element_by_xpath("//select[@name='ff11_ocardtype']/option[text()='Mastercard']").click()
-    driver.find_element_by_name('ff11_ocardcvv2').send_keys('777')
-
-    check_out = driver.find_element_by_name('divCheckout')
-    # Don't uncomment this.
-    # check_out.click()
+        # Checkout
+        #self.check_out(dry_run=True)

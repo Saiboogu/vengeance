@@ -130,7 +130,6 @@ class Config(object):
             'LastName',
             'Phone',
             'Address',
-            'Apt',
             'City',
             'Country',
             'State',
