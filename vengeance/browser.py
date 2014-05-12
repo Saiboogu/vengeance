@@ -53,6 +53,60 @@ all = [
 # CLASSES
 # =============================================================================
 
+
+class BuyerSelenium(object):
+    """Reference implementation of the Buyer"""
+    def __init__(self, config):
+        self._config = config
+        self._driver = webdriver.Firefox()
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def driver(self):
+        return self._driver
+
+    def build_url(self, relative):
+        """Builds a url with our base"""
+        url = 'http://{base}/{rel}'.format(
+                base=self.config.base_url,
+                rel=relative,
+        )
+        return url
+
+    def fill_form_dict(self, form_dict):
+        """Fills an entire form using a dictionary to dictate name & values"""
+        for form in form_dict:
+            self.fill_form(form, form_values[form])
+
+    def fill_form_item(self, name, value):
+        """Fills a single form item"""
+        form = self.driver.find_element_by_name(name)
+        form.send_keys(value)
+
+    def get_links(self):
+        """Fetches all links from the current page and returns as list"""
+        return self.driver.find_elements_by_tag_name('a')
+
+    def run(self):
+        self.driver.get(self.build_url('view_category.asp?cat=12'))
+
+        # Find the link we want
+        links = self.get_links()
+        for link in links:
+            href = link.get_attribute('href').lower()
+            if self.config.targets[0].lower() in href:
+                link.click()
+                break
+
+        # Add to our cart
+        self.driver.find_element_by_name('Add').click()
+
+        # Head to checkout
+        self.driver.get(self.build_url('checkout.asp?step=1'))
+
 # =============================================================================
 # PUBLIC FUNCTIONS
 # =============================================================================
@@ -61,19 +115,18 @@ if __name__ == '__main__':
     driver = webdriver.Firefox()
     driver.get('')
 
-    # The link text is the visible text, not the a ref url
-    target_elem = driver.find_element_by_link_text('')
-    # If we don't wait here, it doesn't get clicked.
-    driver.implicitly_wait(1)
-    target_elem.click()
+    links = driver.find_elements_by_tag_name('a')
+    for link in links:
+        href = link.get_attribute('href').lower()
+        if '' in href:
+            link.click()
+            break
 
     # Add To Cart
-    add = driver.find_element_by_name('Add')
-    add.click()
+    driver.find_element_by_name('Add').click()
 
     # Proceed to Checkout
-    proceed = driver.find_element_by_xpath("//input[@value='Proceed to Checkout']")
-    proceed.click()
+    driver.find_element_by_xpath("//input[@value='Proceed to Checkout']").click()
 
     def fill_form(name, value):
         form = driver.find_element_by_name(name)
@@ -95,17 +148,13 @@ if __name__ == '__main__':
     for form in form_values:
         fill_form(form, form_values[form])
 
-    # Got to be a better way than this
-    # We also leave Country at it's default.
-    state = driver.find_element_by_name('shipping_state')
-    state.send_keys(Keys.ARROW_DOWN)
-    state.send_keys(Keys.ARROW_DOWN)
-    state.send_keys(Keys.ARROW_DOWN)
-    state.send_keys(Keys.ARROW_DOWN)
-    state.send_keys(Keys.ARROW_DOWN)
+    # Country
+    driver.find_element_by_xpath("//select[@name='shipping_country']/option[text()='United States']").click()
 
-    proceed = driver.find_element_by_name("Add22")
-    proceed.click()
+    # State
+    driver.find_element_by_xpath("//select[@name='shipping_state']/option[text()='California']").click()
+
+    driver.find_element_by_name("Add22").click()
 
     use_shipping = driver.find_element_by_name('check1')
     use_shipping.click()
@@ -113,17 +162,13 @@ if __name__ == '__main__':
     cc_num = driver.find_element_by_name('ff11_ocardno')
     cc_num.send_keys('32168712368')
 
-    # Exp Month and Year are not working
-    cc_mo = driver.find_element_by_name('ff11_ocardexpiresmonth')
-    cc_mo.send_keys('12')
-    cc_year = driver.find_element_by_name('ff11_ocardexpiresyear')
-    cc_year.send_keys('2020')
+    # Exp Month and Year
+    driver.find_element_by_xpath("//select[@name='ff11_ocardexpiresmonth']/option[text()='12']").click()
+    driver.find_element_by_xpath("//select[@name='ff11_ocardexpiresyear']/option[text()='2020']").click()
 
-    # Card Type is not working
-    cc_type = driver.find_element_by_name('ff11_ocardtype')
-    cc_type.send_keys('Mastercard')
-    cc_cvv = driver.find_element_by_name('ff11_ocardcvv2')
-    cc_cvv.send_keys('777')
+    # Card Type
+    driver.find_element_by_xpath("//select[@name='ff11_ocardtype']/option[text()='Mastercard']").click()
+    driver.find_element_by_name('ff11_ocardcvv2').send_keys('777')
 
     check_out = driver.find_element_by_name('divCheckout')
     # Don't uncomment this.
