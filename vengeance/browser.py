@@ -40,13 +40,14 @@ SOFTWARE.
 
 # Standard Imports
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 # =============================================================================
 # GLOBALS
 # =============================================================================
 
-all = [
+__all__ = [
+    'BuyerSelenium'
 ]
 
 # =============================================================================
@@ -57,8 +58,9 @@ all = [
 class BuyerSelenium(object):
     """Reference implementation of the Buyer"""
     def __init__(self, config):
+        self._profile = self.disable_images()
         self._config = config
-        self._driver = webdriver.Firefox()
+        self._driver = webdriver.Firefox(self._profile)
 
     # Properties ==============================================================
 
@@ -124,6 +126,25 @@ class BuyerSelenium(object):
         check_out_btn = self.driver.find_element_by_name('divCheckout')
         if not dry_run:
             check_out_btn.click()
+
+    # =========================================================================
+
+    @staticmethod
+    def disable_images():
+        """Disables css, images and flash inside browser"""
+        ## get the Firefox profile object
+        firefox_profile = FirefoxProfile()
+        ## Disable CSS
+        firefox_profile.set_preference('permissions.default.stylesheet', 2)
+        ## Disable images
+        firefox_profile.set_preference('permissions.default.image', 2)
+        ## Disable Flash
+        firefox_profile.set_preference(
+            'dom.ipc.plugins.enabled.libflashplayer.so',
+            'false'
+        )
+
+        return firefox_profile
 
     # =========================================================================
 
@@ -203,4 +224,4 @@ class BuyerSelenium(object):
         self.fill_billing()
 
         # Checkout
-        #self.check_out(dry_run=True)
+        self.check_out(dry_run=True)
