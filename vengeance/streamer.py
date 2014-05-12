@@ -63,6 +63,7 @@ class SaleListener(StreamListener):
         tweet = status.text.lower()
         print tweet
         if 'nba' in tweet:
+            self.buyer.tweet_time = status.created_at
             self.buyer.run()
             return False
         else:
