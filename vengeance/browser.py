@@ -243,7 +243,7 @@ class BuyerSelenium(object):
         self.fill_billing()
 
         # Checkout
-        self.check_out(dry_run=True)
+        self.check_out(dry_run=False)
 
         self.finish_time = datetime.utcnow()
         print "Total time:", self.finish_time - self.tweet_time
