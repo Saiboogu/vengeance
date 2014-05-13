@@ -37,7 +37,7 @@ SOFTWARE.
 # =============================================================================
 
 # Standard Imports
-from tweepy import OAuthHandler, Stream, StreamListener
+from tweepy import API, OAuthHandler, Stream, StreamListener
 
 # =============================================================================
 # GLOBALS
@@ -62,7 +62,7 @@ class SaleListener(StreamListener):
     def on_status(self, status):
         tweet = status.text.lower()
         print tweet
-        if 'nba' in tweet:
+        if 'on sale now' in tweet:
             self.buyer.tweet_time = status.created_at
             self.buyer.run()
             return False
@@ -94,5 +94,13 @@ def sale_watch(config, buyer):
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
 
+    api = API(auth)
+    follow = api.get_user(config.twitter_user)
+    print 'Following user: {name} (@{user}, id: {id})'.format(
+        name=follow.name,
+        user=follow.screen_name,
+        id=follow.id_str,
+    )
+
     stream = Stream(auth, listener)
-    stream.filter(track=['basketball'])
+    stream.filter(follow=[follow.id_str])
