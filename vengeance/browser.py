@@ -228,6 +228,7 @@ class BuyerSelenium(object):
         self.driver.find_element_by_name('Add').click()
         print "Added to Cart"
 
+        self.driver.implicitly_wait(.1)
         # Head to checkout
         self.driver.get(self.build_url('checkout.asp?step=1'))
         print "On Shipping Page"
