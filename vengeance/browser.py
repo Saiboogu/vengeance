@@ -181,6 +181,19 @@ class BuyerSelenium(object):
         # Use shipping for billing
         self.driver.find_element_by_name('check1').click()
 
+        # See if items have been removed from our cart
+        oos = True
+        while oos:
+            try:
+                self.driver.find_element_by_xpath(
+                    "//input[@value='Click here to continue']"
+                ).click()
+            except NoSuchElementException:
+                # No items removed
+                oos = False
+            else:
+                print "An item was removed from the cart"
+
         # Credit Card Number and CVV2
         self._fill_form_dict(
             {
