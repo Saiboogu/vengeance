@@ -108,21 +108,29 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
-    def _out_of_stock_handler(self):
+    def _out_of_stock_handler(self, click=True):
         """Acknowledges out of stock warnings and skips past them"""
         oos = True
         found_oos = False
         while oos:
             try:
-                self.driver.find_element_by_xpath(
+                elem = self.driver.find_element_by_xpath(
                     "//input[@value='Click here to continue']"
-                ).click()
+                )
             except NoSuchElementException:
                 # No items removed
                 oos = False
             else:
                 print "An item was removed from the cart"
                 found_oos = True
+                if click:
+                    elem.click()
+                else:
+                    # When we don't need to click, we're only
+                    # checking on the status of a single item.
+                    # The function calling this handler will
+                    # handle moving on to the next page.
+                    break
         return found_oos
 
     # =========================================================================
@@ -160,7 +168,7 @@ class BuyerSelenium(object):
                 link=link
             )
             self.driver.implicitly_wait(0.1)
-            if self._out_of_stock_handler():
+            if self._out_of_stock_handler(click=False):
                 print "Product on {link} removed from cart.".format(
                     link=link
                 )
