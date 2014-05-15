@@ -108,6 +108,22 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
+    def _out_of_stock_handler(self):
+        """Acknowledges out of stock warnings and skips past them"""
+        oos = True
+        while oos:
+            try:
+                self.driver.find_element_by_xpath(
+                    "//input[@value='Click here to continue']"
+                ).click()
+            except NoSuchElementException:
+                # No items removed
+                oos = False
+            else:
+                print "An item was removed from the cart"
+
+    # =========================================================================
+
     def _xpath_select_dict(self, select_dict):
         """Does multiple section boxes based on incoming selection dict"""
         for select in select_dict:
@@ -151,6 +167,10 @@ class BuyerSelenium(object):
         if not dry_run:
             print "Live. Purchasing"
             check_out_btn.click()
+
+            # See if items have been removed from our cart
+            self._out_of_stock_handler()
+
             print "Purchase complete."
         else:
             print "dry_run is engaged. No purchase made."
@@ -182,17 +202,7 @@ class BuyerSelenium(object):
         self.driver.find_element_by_name('check1').click()
 
         # See if items have been removed from our cart
-        oos = True
-        while oos:
-            try:
-                self.driver.find_element_by_xpath(
-                    "//input[@value='Click here to continue']"
-                ).click()
-            except NoSuchElementException:
-                # No items removed
-                oos = False
-            else:
-                print "An item was removed from the cart"
+        self._out_of_stock_handler()
 
         # Credit Card Number and CVV2
         self._fill_form_dict(
@@ -215,6 +225,9 @@ class BuyerSelenium(object):
 
     def fill_shipping(self):
         """Fills out shipping page"""
+
+        # See if items have been removed from our cart
+        self._out_of_stock_handler()
 
         shipping_values = {
             'email': self.config.consumer['Email'],
