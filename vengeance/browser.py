@@ -41,6 +41,7 @@ SOFTWARE.
 # Standard Imports
 from datetime import datetime
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 # =============================================================================
@@ -129,11 +130,17 @@ class BuyerSelenium(object):
     def add_link_to_cart(self, link):
         """Adds the product on page link to the cart"""
         self.driver.get(link)
-        self.driver.find_element_by_name('Add').click()
-        print "Added produck found on {link} to cart".format(
-            link=link
-        )
-        self.driver.implicitly_wait(0.1)
+        try:
+            self.driver.find_element_by_name('Add').click()
+        except NoSuchElementException:
+            print "Product on page {link} is sold out.".format(
+                link=link
+            )
+        else:
+            print "Added product found on {link} to cart.".format(
+                link=link
+            )
+            self.driver.implicitly_wait(0.1)
 
     # =========================================================================
 
