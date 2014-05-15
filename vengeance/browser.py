@@ -257,7 +257,8 @@ class BuyerSelenium(object):
         for product in self.config.targets:
             for link in links:
                 href = link.get_attribute('href').lower()
-                if product in href:
+                p_page = href.split('/')[-1]
+                if product in p_page:
                     good_links.append(href)
         # Filter out duplicates
         good_links = list(set(good_links))
