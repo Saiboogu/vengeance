@@ -117,7 +117,9 @@ class Config(object):
         section = 'Target'
         targets = self._config.get(section, 'Products').split(',')
         quantities = self._config.get(section, 'Quantities').split(',')
-        return {targets[i]: quantities[i] for i in xrange(len(targets))}
+        return {
+            targets[i].lower(): quantities[i] for i in xrange(len(targets))
+        }
 
     # =========================================================================
 
