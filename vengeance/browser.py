@@ -126,6 +126,17 @@ class BuyerSelenium(object):
 
     # Public Methods ==========================================================
 
+    def add_link_to_cart(self, link):
+        """Adds the product on page link to the cart"""
+        self.driver.get(link)
+        self.driver.find_element_by_name('Add').click()
+        print "Added produck found on {link} to cart".format(
+            link=link
+        )
+        self.driver.implicitly_wait(0.1)
+
+    # =========================================================================
+
     def check_out(self, dry_run=True):
         """Hits the final checkout button"""
         check_out_btn = self.driver.find_element_by_name('divCheckout')
@@ -207,6 +218,20 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
+    def filter_links(self, links):
+        """Filters a list down to a set of only interesting links"""
+        good_links = []
+        for product in self.config.targets:
+            for link in links:
+                href = link.get_attribute('href').lower()
+                if product in href:
+                    good_links.append(href)
+        # Filter out duplicates
+        good_links = list(set(good_links))
+        return good_links
+
+    # =========================================================================
+
     def run(self):
         """Main runner function"""
         self.start_time = datetime.utcnow()
@@ -216,19 +241,12 @@ class BuyerSelenium(object):
 
         # Find the link we want
         links = self._get_links()
-        for link in links:
-            href = link.get_attribute('href').lower()
-            if self.config.targets.keys()[0].lower() in href:
-                print "Found link for", self.config.targets.keys()[0].lower()
-                print href
-                link.click()
-                break
+        good_links = self.filter_links(links)
 
         # Add to our cart
-        self.driver.find_element_by_name('Add').click()
-        print "Added to Cart"
+        for link in good_links:
+            self.add_link_to_cart(link)
 
-        self.driver.implicitly_wait(.1)
         # Head to checkout
         self.driver.get(self.build_url('checkout.asp?step=1'))
         print "On Shipping Page"
