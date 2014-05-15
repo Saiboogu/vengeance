@@ -111,6 +111,7 @@ class BuyerSelenium(object):
     def _out_of_stock_handler(self):
         """Acknowledges out of stock warnings and skips past them"""
         oos = True
+        found_oos = False
         while oos:
             try:
                 self.driver.find_element_by_xpath(
@@ -121,6 +122,8 @@ class BuyerSelenium(object):
                 oos = False
             else:
                 print "An item was removed from the cart"
+                found_oos = True
+        return found_oos
 
     # =========================================================================
 
@@ -157,6 +160,10 @@ class BuyerSelenium(object):
                 link=link
             )
             self.driver.implicitly_wait(0.1)
+            if self._out_of_stock_handler():
+                print "Product on {link} removed from cart.".format(
+                    link=link
+                )
 
     # =========================================================================
 
