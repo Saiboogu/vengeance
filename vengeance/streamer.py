@@ -37,6 +37,7 @@ SOFTWARE.
 # =============================================================================
 
 # Standard Imports
+from datetime import datetime
 from tweepy import API, OAuthHandler, Stream, StreamListener
 
 # =============================================================================
@@ -102,5 +103,7 @@ def sale_watch(config, buyer):
         id=follow.id_str,
     )
 
+    #buyer.tweet_time = datetime.utcnow()
+    #buyer.run()
     stream = Stream(auth, listener)
     stream.filter(follow=[follow.id_str])
