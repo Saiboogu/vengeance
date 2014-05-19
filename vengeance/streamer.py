@@ -63,7 +63,9 @@ class SaleListener(StreamListener):
     def on_status(self, status):
         tweet = status.text.lower()
         print tweet
-        if 'on sale now' in tweet:
+        if tweet.startswith('@'):
+            return True
+        elif 'on sale now' in tweet:
             self.buyer.tweet_time = status.created_at
             self.buyer.run()
             return False
