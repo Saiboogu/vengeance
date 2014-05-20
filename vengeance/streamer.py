@@ -37,6 +37,7 @@ SOFTWARE.
 # =============================================================================
 
 # Standard Imports
+from datetime import datetime
 from tweepy import API, OAuthHandler, Stream, StreamListener
 
 # =============================================================================
@@ -62,7 +63,9 @@ class SaleListener(StreamListener):
     def on_status(self, status):
         tweet = status.text.lower()
         print tweet
-        if 'on sale now' in tweet:
+        if tweet.startswith('@'):
+            return True
+        elif 'on sale now' in tweet:
             self.buyer.tweet_time = status.created_at
             self.buyer.run()
             return False
@@ -102,5 +105,7 @@ def sale_watch(config, buyer):
         id=follow.id_str,
     )
 
+    #buyer.tweet_time = datetime.utcnow()
+    #buyer.run()
     stream = Stream(auth, listener)
     stream.filter(follow=[follow.id_str])

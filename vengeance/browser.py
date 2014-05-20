@@ -41,6 +41,7 @@ SOFTWARE.
 # Standard Imports
 from datetime import datetime
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 
 # =============================================================================
@@ -107,6 +108,33 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
+    def _out_of_stock_handler(self, click=True):
+        """Acknowledges out of stock warnings and skips past them"""
+        oos = True
+        found_oos = False
+        while oos:
+            try:
+                elem = self.driver.find_element_by_xpath(
+                    "//input[@value='Click here to continue']"
+                )
+            except NoSuchElementException:
+                # No items removed
+                oos = False
+            else:
+                print "An item was removed from the cart"
+                found_oos = True
+                if click:
+                    elem.click()
+                else:
+                    # When we don't need to click, we're only
+                    # checking on the status of a single item.
+                    # The function calling this handler will
+                    # handle moving on to the next page.
+                    break
+        return found_oos
+
+    # =========================================================================
+
     def _xpath_select_dict(self, select_dict):
         """Does multiple section boxes based on incoming selection dict"""
         for select in select_dict:
@@ -126,6 +154,27 @@ class BuyerSelenium(object):
 
     # Public Methods ==========================================================
 
+    def add_link_to_cart(self, link):
+        """Adds the product on page link to the cart"""
+        self.driver.get(link)
+        try:
+            self.driver.find_element_by_name('Add').click()
+        except NoSuchElementException:
+            print "Product on page {link} is sold out.".format(
+                link=link
+            )
+        else:
+            print "Added product found on {link} to cart.".format(
+                link=link
+            )
+            self.driver.implicitly_wait(0.1)
+            if self._out_of_stock_handler(click=False):
+                print "Product on {link} removed from cart.".format(
+                    link=link
+                )
+
+    # =========================================================================
+
     def check_out(self, dry_run=True):
         """Hits the final checkout button"""
         check_out_btn = self.driver.find_element_by_name('divCheckout')
@@ -133,6 +182,10 @@ class BuyerSelenium(object):
         if not dry_run:
             print "Live. Purchasing"
             check_out_btn.click()
+
+            # See if items have been removed from our cart
+            self._out_of_stock_handler()
+
             print "Purchase complete."
         else:
             print "dry_run is engaged. No purchase made."
@@ -163,6 +216,9 @@ class BuyerSelenium(object):
         # Use shipping for billing
         self.driver.find_element_by_name('check1').click()
 
+        # See if items have been removed from our cart
+        self._out_of_stock_handler()
+
         # Credit Card Number and CVV2
         self._fill_form_dict(
             {
@@ -184,6 +240,9 @@ class BuyerSelenium(object):
 
     def fill_shipping(self):
         """Fills out shipping page"""
+
+        # See if items have been removed from our cart
+        self._out_of_stock_handler()
 
         shipping_values = {
             'email': self.config.consumer['Email'],
@@ -207,6 +266,21 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
+    def filter_links(self, links):
+        """Filters a list down to a set of only interesting links"""
+        good_links = []
+        for product in self.config.targets:
+            for link in links:
+                href = link.get_attribute('href').lower()
+                p_page = href.split('/')[-1]
+                if product in p_page:
+                    good_links.append(href)
+        # Filter out duplicates
+        good_links = list(set(good_links))
+        return good_links
+
+    # =========================================================================
+
     def run(self):
         """Main runner function"""
         self.start_time = datetime.utcnow()
@@ -216,17 +290,11 @@ class BuyerSelenium(object):
 
         # Find the link we want
         links = self._get_links()
-        for link in links:
-            href = link.get_attribute('href').lower()
-            if self.config.targets.keys()[0].lower() in href:
-                print "Found link for", self.config.targets.keys()[0].lower()
-                print href
-                link.click()
-                break
+        good_links = self.filter_links(links)
 
         # Add to our cart
-        self.driver.find_element_by_name('Add').click()
-        print "Added to Cart"
+        for link in good_links:
+            self.add_link_to_cart(link)
 
         # Head to checkout
         self.driver.get(self.build_url('checkout.asp?step=1'))
