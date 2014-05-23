@@ -7,9 +7,14 @@ Vengeance
 Watches a twitter handle for an 'on sale now' text string, then attempts to
 buy indicated items from a store's website in a speedy fashion. Designed
 after a seller's continued, repeated refusal to update their drop system
-to something that would more discourage scalpers.
+to something that would discourage scalpers.
 
 Designed to hopefully be faster than the scalpers themselves.
+
+Initial tests have clocked in the baseline Selenium implementation at buying
+a single item in under 7 seconds from the tweet time. If the item is super
+popular, this is still not fast enough to beat the other more advanced
+scalpers.
 
 ## License
 
@@ -65,8 +70,10 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
+    # buyer is the browser object that sale_watch will kick off.
     buyer = BuyerSelenium(v_config)
 
+    # sale_watch watches the twitter than calls the run method of buyer.
     sale_watch(v_config, buyer)
 
     print 'done'
