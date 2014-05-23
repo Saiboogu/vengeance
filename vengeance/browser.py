@@ -60,7 +60,8 @@ __all__ = [
 class BuyerSelenium(object):
     """Reference implementation of the Buyer"""
     def __init__(self, config):
-        self._profile = self.disable_images()
+        # Set our profile to turn off image loading, css and flash.
+        self._profile = self._disable_images()
         self._config = config
         self._driver = webdriver.Firefox(self._profile)
 
@@ -87,6 +88,25 @@ class BuyerSelenium(object):
         return url
 
     # Private Methods =========================================================
+
+    @staticmethod
+    def _disable_images():
+        """Disables css, images and flash inside browser"""
+        ## get the Firefox profile object
+        firefox_profile = FirefoxProfile()
+        ## Disable CSS
+        firefox_profile.set_preference('permissions.default.stylesheet', 2)
+        ## Disable images
+        firefox_profile.set_preference('permissions.default.image', 2)
+        ## Disable Flash
+        firefox_profile.set_preference(
+            'dom.ipc.plugins.enabled.libflashplayer.so',
+            'false'
+        )
+
+        return firefox_profile
+
+    # =========================================================================
 
     def _fill_form_dict(self, form_dict):
         """Fills an entire form using a dictionary to dictate name & values"""
@@ -189,25 +209,6 @@ class BuyerSelenium(object):
             print "Purchase complete."
         else:
             print "dry_run is engaged. No purchase made."
-
-    # =========================================================================
-
-    @staticmethod
-    def disable_images():
-        """Disables css, images and flash inside browser"""
-        ## get the Firefox profile object
-        firefox_profile = FirefoxProfile()
-        ## Disable CSS
-        firefox_profile.set_preference('permissions.default.stylesheet', 2)
-        ## Disable images
-        firefox_profile.set_preference('permissions.default.image', 2)
-        ## Disable Flash
-        firefox_profile.set_preference(
-            'dom.ipc.plugins.enabled.libflashplayer.so',
-            'false'
-        )
-
-        return firefox_profile
 
     # =========================================================================
 
