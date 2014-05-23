@@ -4,9 +4,12 @@
 Browser
 =======
 
-Contains a Selenium implementation of Vengeance. Slower, but more reliable.
-This should be considered the base result, with other results being
-more unstable.
+Contains the various implementation of the browser fetchers that do the actual
+buying of items.
+
+Currently only includes a Selenium implementation of Vengeance. Slower, but
+more reliable. This should be considered the base result, with other results
+being more unstable.
 
 ## License
 
@@ -58,11 +61,82 @@ __all__ = [
 
 
 class BuyerSelenium(object):
-    """Reference implementation of the Buyer"""
+    """Reference implementation of the Buyer using Selenium
+
+    Description
+    ~~~~~~~~~~~
+
+    Selenium launches an actual browser window, then controls that browser
+    window. We'll search for elements, click buttons and fill out forms,
+    all using an actual browser.
+
+    This gives us maximum compatibility, but will also be the slowest
+    implementation
+
+    **Attributes:**
+
+        config : (:class:`config.Config`)
+            Config object that holds all the product and form information
+            we need to buy something, such as shipping addresses and credit
+            card information.
+
+        driver : (:class:`webdriver.Driver`)
+            The webbrowser implementation to use. This is by default firefox,
+            and you'd have to modify the code to change it.
+
+        finish_time : (:class:`datetime.DateTime`)
+            DateTime object for when the final check out action is completed.
+
+        start_time : (:class:`datetime.DateTime`)
+            DateTime object for when the BuyerSelenium class begins it's work
+
+        tweet_time : (:class:`datetime.DateTime`)
+            DateTime object for when the kickoff tweet happened, this let's us
+            calculate the total runtime of the Selenium browser alone, which
+            accounts for the delay before the tweet was sent to us.
+
+    **Public Methods:**
+
+        add_link_to_cart()
+            Goes to a product page, finds the `Add` button (if present) and
+            adds product to cart. Will handle out of stock gracefully.
+
+            Has a short wait after adding an item to the cart to give server
+            time to handle the add.
+
+        check_out()
+            When activated on the final checkout page, clicks the checkout
+            button. Has a parameter ``dry_run`` which, when False, will click
+            the button for real.
+
+        fill_billing()
+            While on the billing page, fills out all billing information.
+
+        fill_shipping()
+            While on the shipping page (first page of checkout), fills out
+            all shipping information.
+
+        filter_links()
+            Compares a list of links to our interested product list, and
+            returns only links we're interested on adding to our cart.
+
+        run()
+            Main run function, calling this starts the buyer process into
+            motion, logs the start and finish times. Parses the main
+            item page for links, filters those links down to interested
+            links, adds items to the cart, begins checkout process.
+
+    """
     def __init__(self, config):
+        """Initializes all instance variables for this buyer."""
         # Set our profile to turn off image loading, css and flash.
         self._profile = self._disable_images()
+
+        # Config contains all the product and consumer information that we
+        # need to buy and checkout.
         self._config = config
+
+        # This initializes and opens our browser.
         self._driver = webdriver.Firefox(self._profile)
 
         self.tweet_time = None
@@ -73,16 +147,18 @@ class BuyerSelenium(object):
 
     @property
     def config(self):
+        """Our Config instance from config.ini"""
         return self._config
 
     @property
     def driver(self):
+        """Our webbrowser"""
         return self._driver
 
     # Private Methods =========================================================
 
     def _build_url(self, relative):
-        """Builds a url with our base"""
+        """Builds a url with our base from config"""
         url = 'http://{base}/{rel}'.format(
             base=self.config.base_url,
             rel=relative,
@@ -94,13 +170,13 @@ class BuyerSelenium(object):
     @staticmethod
     def _disable_images():
         """Disables css, images and flash inside browser"""
-        ## get the Firefox profile object
+        # get the Firefox profile object
         firefox_profile = FirefoxProfile()
-        ## Disable CSS
+        # Disable CSS
         firefox_profile.set_preference('permissions.default.stylesheet', 2)
-        ## Disable images
+        # Disable images
         firefox_profile.set_preference('permissions.default.image', 2)
-        ## Disable Flash
+        # Disable Flash
         firefox_profile.set_preference(
             'dom.ipc.plugins.enabled.libflashplayer.so',
             'false'
@@ -118,7 +194,7 @@ class BuyerSelenium(object):
     # =========================================================================
 
     def _fill_form_item(self, name, value):
-        """Fills a single form item"""
+        """Fills a single form text field item"""
         form = self.driver.find_element_by_name(name)
         form.send_keys(value)
 
@@ -126,6 +202,7 @@ class BuyerSelenium(object):
 
     def _get_links(self):
         """Fetches all links from the current page and returns as list"""
+        # We'll search for all 'a' elements
         return self.driver.find_elements_by_tag_name('a')
 
     # =========================================================================
@@ -288,8 +365,8 @@ class BuyerSelenium(object):
         """Main runner function"""
         self.start_time = datetime.utcnow()
         print "Delay of:", datetime.utcnow() - self.tweet_time
-        print "Heading to", self.build_url('view_category.asp?cat=12')
-        self.driver.get(self.build_url('view_category.asp?cat=12'))
+        print "Heading to", self._build_url('view_category.asp?cat=12')
+        self.driver.get(self._build_url('view_category.asp?cat=12'))
 
         # Find the link we want
         links = self._get_links()
