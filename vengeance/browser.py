@@ -79,15 +79,17 @@ class BuyerSelenium(object):
     def driver(self):
         return self._driver
 
-    def build_url(self, relative):
+    # Private Methods =========================================================
+
+    def _build_url(self, relative):
         """Builds a url with our base"""
         url = 'http://{base}/{rel}'.format(
-                base=self.config.base_url,
-                rel=relative,
+            base=self.config.base_url,
+            rel=relative,
         )
         return url
 
-    # Private Methods =========================================================
+    # =========================================================================
 
     @staticmethod
     def _disable_images():
@@ -298,7 +300,7 @@ class BuyerSelenium(object):
             self.add_link_to_cart(link)
 
         # Head to checkout
-        self.driver.get(self.build_url('checkout.asp?step=1'))
+        self.driver.get(self._build_url('checkout.asp?step=1'))
         print "On Shipping Page"
 
         # Fill Shipping Page
