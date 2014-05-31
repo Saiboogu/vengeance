@@ -9,7 +9,7 @@ at a designated rate. If new links are found, return the list of links
 
 ## License
 
-Copyright (c) 2013 Robert Graham, Sean Wallitsch
+Copyright (c) 2014 Robert Graham, Sean Wallitsch
 
 Based off of Manatee, https://github.com/rpgraham84/manatee , a currently
 unlicensed work of Robert Graham. Will need a compatible license here.
