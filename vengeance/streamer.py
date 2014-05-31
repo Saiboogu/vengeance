@@ -66,7 +66,7 @@ class SaleListener(StreamListener):
         if tweet.startswith('@'):
             return True
         elif 'on sale now' in tweet:
-            self.buyer.tweet_time = status.created_at
+            self.buyer.drop_time = status.created_at
             self.buyer.run()
             return False
         else:
@@ -105,7 +105,7 @@ def tweet_watch(config, buyer):
         id=follow.id_str,
     )
 
-    #buyer.tweet_time = datetime.utcnow()
+    #buyer.drop_time = datetime.utcnow()
     #buyer.run()
     stream = Stream(auth, listener)
     stream.filter(follow=[follow.id_str])

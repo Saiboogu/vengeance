@@ -64,7 +64,7 @@ class BuyerSelenium(object):
         self._config = config
         self._driver = webdriver.Firefox(self._profile)
 
-        self.tweet_time = None
+        self.drop_time = None
         self.start_time = None
         self.finish_time = None
 
@@ -266,12 +266,15 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
-    def filter_links(self, links):
+    def filter_element_links(self, links, elements=True):
         """Filters a list down to a set of only interesting links"""
         good_links = []
         for product in self.config.targets:
             for link in links:
-                href = link.get_attribute('href').lower()
+                if elements:
+                    href = link.get_attribute('href').lower()
+                else:
+                    href = link
                 p_page = href.split('/')[-1]
                 if product in p_page:
                     good_links.append(href)
@@ -281,16 +284,26 @@ class BuyerSelenium(object):
 
     # =========================================================================
 
-    def run(self):
+    def run(self, drops=None):
         """Main runner function"""
         self.start_time = datetime.utcnow()
-        print "Delay of:", datetime.utcnow() - self.tweet_time
-        print "Heading to", self.build_url('view_category.asp?cat=12')
-        self.driver.get(self.build_url('view_category.asp?cat=12'))
+        if not self.drop_time:
+            self.drop_time = self.start_time
+        print "Delay of:", datetime.utcnow() - self.drop_time
 
-        # Find the link we want
-        links = self._get_links()
-        good_links = self.filter_links(links)
+        if not drops:
+            # If we weren't handed a list of links, we gotta find them.
+            print "Heading to", self.build_url('view_category.asp?cat=12')
+            self.driver.get(self.build_url('view_category.asp?cat=12'))
+
+            # Find the link we want
+            links = self._get_links()
+            elements = True
+        else:
+            links = drops
+            elements = False
+
+        good_links = self.filter_element_links(links, elements)
 
         # Add to our cart
         for link in good_links:
@@ -314,5 +327,5 @@ class BuyerSelenium(object):
         self.check_out(dry_run=True)
 
         self.finish_time = datetime.utcnow()
-        print "Total time:", self.finish_time - self.tweet_time
+        print "Total time:", self.finish_time - self.drop_time
         print "Running time:", self.finish_time - self.start_time
