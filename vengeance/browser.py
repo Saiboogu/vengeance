@@ -78,7 +78,7 @@ class BuyerSelenium(object):
     def driver(self):
         return self._driver
 
-    def build_url(self, relative):
+    def build_url(self, relative=''):
         """Builds a url with our base"""
         url = 'http://{base}/{rel}'.format(
                 base=self.config.base_url,
