@@ -44,7 +44,8 @@ SOFTWARE.
 # Vengeance Imports
 from browser import BuyerSelenium
 from config import Config
-from streamer import sale_watch
+from refresher import refresh_page
+from streamer import tweet_watch
 
 # =============================================================================
 # GLOBALS
@@ -67,7 +68,13 @@ def main():
 
     buyer = BuyerSelenium(v_config)
 
-    sale_watch(v_config, buyer)
+    if v_config.method == 'twitter':
+        tweet_watch(v_config, buyer)
+    elif v_config.method == 'refresh':
+        drops = refresh_page(v_config.base_url)
+        buyer.run(drops)
+    else:
+        raise ValueError("Config Method must be set to 'twitter' or 'refresh'")
 
     print 'done'
 
