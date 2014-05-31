@@ -46,7 +46,7 @@ from tweepy import API, OAuthHandler, Stream, StreamListener
 
 __all__ = [
     'SaleListener',
-    'sale_watch',
+    'tweet_watch',
 ]
 
 # =============================================================================
@@ -80,7 +80,7 @@ class SaleListener(StreamListener):
 # =============================================================================
 
 
-def sale_watch(config, buyer):
+def tweet_watch(config, buyer):
     """Uses a twitter stream to watch for a sale"""
 
     # Go to http://dev.twitter.com and create an app.
