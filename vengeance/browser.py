@@ -49,7 +49,7 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 # =============================================================================
 
 __all__ = [
-    'BuyerSelenium'
+    'SeleniumBrowser'
 ]
 
 # =============================================================================
@@ -57,7 +57,7 @@ __all__ = [
 # =============================================================================
 
 
-class BuyerSelenium(object):
+class SeleniumBrowser(object):
     """Reference implementation of the Buyer"""
     def __init__(self, config):
         self._profile = self.disable_images()
