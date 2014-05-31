@@ -45,7 +45,7 @@ def refresh_page(page, rate=5):
         # drops seem to be the only thing inside of "li", however
         # that's not required for this to work.
         links = main_soup.find_all("li")
-        available = [link.find("a").get("href") for link in links]
+        available = [link.find("a").get("href").lower() for link in links]
         available.sort()
 
         if not first_run and available != previous:
