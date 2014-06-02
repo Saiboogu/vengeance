@@ -39,7 +39,11 @@ SOFTWARE.
 # =============================================================================
 
 # Standard Imports
+from bs4 import BeautifulSoup
 from datetime import datetime
+import logging
+import httplib
+import requests
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
@@ -52,9 +56,111 @@ __all__ = [
     'SeleniumBrowser'
 ]
 
+# httplib.HTTPConnection.debuglevel = 1
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = True
+
 # =============================================================================
 # CLASSES
 # =============================================================================
+
+
+class RequestsBrowser(object):
+    """Requests based implementation"""
+    def __init__(self, config):
+        self._config = config
+        self._session = requests.Session()
+
+        self.drop_time = None
+        self.start_time = None
+        self.finish_time = None
+
+        self._setup_session()
+
+    # Properties ==============================================================
+
+    @property
+    def cookies(self):
+        return self.session.cookies
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def session(self):
+        return self._session
+
+    # Private Methods =========================================================
+
+    def _setup_session(self):
+        """Sets up the session and fetches base page once"""
+        self.session.headers = {
+            'Host': self.config.base_url,
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'Referer': self.build_url(),
+            'Connection': 'keep-alive',
+            'vary': 'Accept-Encoding,Cookie'
+        }
+        self.session.get(self.build_url())
+        self.session.get(
+            self.build_url(
+                'assets/templates/mondo/includes/jquery.jqzoom-1.0.1.js'
+            )
+        )
+        #self.session.get(
+        #    self.build_url(
+        #        'view_category.asp?cat=12'
+        #    )
+        #)
+
+        for cookie in self.cookies:
+            print cookie
+
+    def add_to_cart(self, item_id):
+        """Add an item to a cart using a POST"""
+        self.session.headers['Referer'] = 'http://www.mondotees.com/Spring-Rocker_p_1509.html'
+        data = {
+            'item_id': '1509',
+            'category_id': '12',
+            'qty-0': '1'
+        }
+        payload = (
+            'Content-Type: multipart/form-data; boundary=---------------------------98516585583522581473857174\r\nContent-Length: 395\r\n\r\n-----------------------------98516585583522581473857174\r\nContent-Disposition: form-data; name="item_id"\r\n\r\n1509\r\n-----------------------------98516585583522581473857174\r\nContent-Disposition: form-data; name="category_id"\r\n\r\n12\r\n-----------------------------98516585583522581473857174\r\nContent-Disposition: form-data; name="qty-0"\r\n\r\n1\r\n-----------------------------98516585583522581473857174--\r\n'
+        )
+        post = self.session.post(
+            self.build_url('add_cart.asp'),
+            data=payload,
+        )
+        print "First in post history:", post.history[0].url
+        print "Final post url:", post.url
+        #print post.text
+
+    def build_url(self, relative=''):
+        """Builds a url with our base"""
+        url = 'http://{base}/{rel}'.format(
+            base=self.config.base_url,
+            rel=relative,
+        )
+        return url
+
+    def run(self):
+        self.add_to_cart(1509)
+        #self.view_cart()
+
+    def view_cart(self):
+        """Goes to the cart page"""
+        cart_response = self.session.get(self.build_url('view_cart.asp'))
+        cart = BeautifulSoup(cart_response.text)
+        items = cart.find_all("item")
+        for item in items:
+            print item
 
 
 class SeleniumBrowser(object):
@@ -81,8 +187,8 @@ class SeleniumBrowser(object):
     def build_url(self, relative=''):
         """Builds a url with our base"""
         url = 'http://{base}/{rel}'.format(
-                base=self.config.base_url,
-                rel=relative,
+            base=self.config.base_url,
+            rel=relative,
         )
         return url
 

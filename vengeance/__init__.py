@@ -42,7 +42,7 @@ SOFTWARE.
 # =============================================================================
 
 # Vengeance Imports
-from browser import SeleniumBrowser
+from browser import RequestsBrowser, SeleniumBrowser
 from config import Config
 from refresher import refresh_page
 from streamer import tweet_watch
@@ -66,7 +66,9 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
-    buyer = SeleniumBrowser(v_config)
+    #buyer = SeleniumBrowser(v_config)
+
+    buyer = RequestsBrowser(v_config)
 
     if v_config.method == 'twitter':
         tweet_watch(v_config, buyer)
