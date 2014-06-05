@@ -177,8 +177,10 @@ class SeleniumBrowser(object):
 
     def check_out(self, dry_run=True):
         """Hits the final checkout button"""
-        check_out_btn = self.driver.find_element_by_name('divCheckout')
-        print "Final checkout page. divCheckout selected for clicking."
+        check_out_btn = self.driver.find_element_by_xpath(
+            "//input[@value='Check out']"
+        )
+        print "Final checkout page. 'Check Out' selected for clicking."
         if not dry_run:
             print "Live. Purchasing"
             check_out_btn.click()
