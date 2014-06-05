@@ -38,6 +38,20 @@ def refresh_page(page, rate=5):
         start_time = datetime.utcnow()
 
         request = requests.get(page)
+
+        # Need to see if they're returning a forbidden style status code
+        if 400 <= request.status_code < 500:
+            print "Request got a bad status"
+            print request.status_code
+            print start_time
+            sleep(rate * 5)
+            continue
+        elif request.status_code >= 500:
+            print "Request got a broken website status"
+            print request.status_code
+            print start_time
+            sleep(rate)
+            continue
         main_soup = BeautifulSoup(request.text)
 
         # Each drop on the page should be inside of a "li" class, and
@@ -67,5 +81,7 @@ def refresh_page(page, rate=5):
         # We should make sure we're refreshing the page at most every 5 seconds
         # but don't wait if we've taken longer than 5 seconds.
         duration = datetime.utcnow() - start_time
+        print datetime.utcnow(),
+        print duration
         if duration.seconds < rate:
             sleep(rate - duration.seconds)
