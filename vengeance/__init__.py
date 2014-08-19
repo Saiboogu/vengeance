@@ -4,10 +4,10 @@
 Vengeance
 =========
 
-Watches a twitter handle for an 'on sale now' text string, then attempts to
-buy indicated items from a store's website in a speedy fashion. Designed
-after a seller's continued, repeated refusal to update their drop system
-to something that would more discourage scalpers.
+Watches a twitter handle for an 'on sale now' text string or watches a page
+for new links, then attempts to buy indicated items from a store's website
+in a speedy fashion. Designed after a seller's continued, repeated refusal to
+update their drop system to something that would more discourage scalpers.
 
 Designed to hopefully be faster than the scalpers themselves.
 
@@ -42,9 +42,10 @@ SOFTWARE.
 # =============================================================================
 
 # Vengeance Imports
-from browser import BuyerSelenium
+from browser import SeleniumBrowser
 from config import Config
-from streamer import sale_watch
+from refresher import refresh_page
+from streamer import tweet_watch
 
 # =============================================================================
 # GLOBALS
@@ -65,9 +66,16 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
-    buyer = BuyerSelenium(v_config)
+    buyer = SeleniumBrowser(v_config)
 
-    sale_watch(v_config, buyer)
+    if v_config.method == 'twitter':
+        tweet_watch(v_config, buyer)
+    elif v_config.method == 'refresh':
+        drops = refresh_page(buyer.build_url(), rate=15)
+        print drops
+        buyer.run(drops)
+    else:
+        raise ValueError("Config Method must be set to 'twitter' or 'refresh'")
 
     print 'done'
 

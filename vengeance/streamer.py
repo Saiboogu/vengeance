@@ -46,7 +46,7 @@ from tweepy import API, OAuthHandler, Stream, StreamListener
 
 __all__ = [
     'SaleListener',
-    'sale_watch',
+    'tweet_watch',
 ]
 
 # =============================================================================
@@ -66,7 +66,7 @@ class SaleListener(StreamListener):
         if tweet.startswith('@'):
             return True
         elif 'on sale now' in tweet:
-            self.buyer.tweet_time = status.created_at
+            self.buyer.drop_time = status.created_at
             self.buyer.run()
             return False
         else:
@@ -80,7 +80,7 @@ class SaleListener(StreamListener):
 # =============================================================================
 
 
-def sale_watch(config, buyer):
+def tweet_watch(config, buyer):
     """Uses a twitter stream to watch for a sale"""
 
     # Go to http://dev.twitter.com and create an app.
@@ -105,7 +105,7 @@ def sale_watch(config, buyer):
         id=follow.id_str,
     )
 
-    #buyer.tweet_time = datetime.utcnow()
+    #buyer.drop_time = datetime.utcnow()
     #buyer.run()
     stream = Stream(auth, listener)
     stream.filter(follow=[follow.id_str])
