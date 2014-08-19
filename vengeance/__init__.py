@@ -71,7 +71,7 @@ def main():
     if v_config.method == 'twitter':
         tweet_watch(v_config, buyer)
     elif v_config.method == 'refresh':
-        drops = refresh_page(buyer.build_url())
+        drops = refresh_page(buyer.build_url(), rate=15)
         print drops
         buyer.run(drops)
     else:

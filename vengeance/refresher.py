@@ -35,10 +35,18 @@ def refresh_page(page, rate=5):
     previous = []
     first_run = True
 
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'vary': 'Accept-Encoding,Cookie'
+    }
+
     while True:
         start_time = datetime.utcnow()
 
-        request = requests.get(page)
+        request = requests.get(page, headers=headers)
 
         # Need to see if they're returning a forbidden style status code
         if 400 <= request.status_code < 500:
@@ -65,19 +73,27 @@ def refresh_page(page, rate=5):
         if not first_run and available != previous:
             # If this isn't our first run and the new result doesn't match
             # previous, we've got new drops!
+            print "Available != previous"
             if available:
+                print "Available found, returning available"
                 return available
             else:
                 # If available is now empty, we need to empty out previous
                 # So we can tell when a drop is back on.
+                print "But available is now empty. Setting previous to be empty"
                 previous = available
         elif first_run:
             # This was our first check, so we'll set our compare result
+            print "First run completed, poster list is:"
+            print available
             previous = available
             first_run = False
 
         # If our available list still matches our previous list, we just wait
         # a little bit then loop again.
+
+        print "No changes detected, available list is as follows:"
+        print available
 
         # We should make sure we're refreshing the page at most every 5 seconds
         # but don't wait if we've taken longer than 5 seconds.
