@@ -42,9 +42,9 @@ SOFTWARE.
 # =============================================================================
 
 # Vengeance Imports
-from browser import SeleniumBrowser
+from browser import SeleniumBrowserTong
 from config import Config
-from refresher import refresh_page
+from refresher import refresh_page_tong
 from streamer import tweet_watch
 
 # =============================================================================
@@ -66,12 +66,12 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
-    buyer = SeleniumBrowser(v_config)
+    buyer = SeleniumBrowserTong(v_config)
 
     if v_config.method == 'twitter':
         tweet_watch(v_config, buyer)
     elif v_config.method == 'refresh':
-        drops = refresh_page(buyer.build_url(), rate=15)
+        drops = refresh_page_tong(buyer.build_url('for_sale'), rate=15)
         print drops
         buyer.run(drops)
     else:
