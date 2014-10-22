@@ -45,7 +45,6 @@ SOFTWARE.
 from browser import SeleniumBrowser
 from config import Config
 from refresher import refresh_page
-from streamer import tweet_watch
 
 # =============================================================================
 # GLOBALS
@@ -68,14 +67,9 @@ def main():
 
     buyer = SeleniumBrowser(v_config)
 
-    if v_config.method == 'twitter':
-        tweet_watch(v_config, buyer)
-    elif v_config.method == 'refresh':
-        drops = refresh_page(buyer.build_url(), rate=15)
-        print drops
-        buyer.run(drops)
-    else:
-        raise ValueError("Config Method must be set to 'twitter' or 'refresh'")
+    drops = refresh_page(buyer.build_url(), rate=15)
+    print drops
+    buyer.run(drops)
 
     print 'done'
 

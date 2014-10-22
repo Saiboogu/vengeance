@@ -57,11 +57,6 @@ class Config(object):
         self._config = ConfigParser.ConfigParser()
         self._config.read(config_file)
 
-        self._oauth = self._read_oauth()
-        self._twitter_user = self._config.get('Target', "TwitterHandle")
-        self._method = self._config.get('Target', 'Method')
-        if self._twitter_user.startswith('@'):
-            self._twitter_user = self._twitter_user[1:]
         self._base_url = self._config.get('Target', 'BaseURL')
         self._targets = self._read_targets()
 
@@ -70,24 +65,9 @@ class Config(object):
     # Properties ==============================================================
 
     @property
-    def oauth(self):
-        """Returns a dict with OAuth keys"""
-        return self._oauth
-
-    @property
     def base_url(self):
         """Returns the base URL we are targeting"""
         return self._base_url
-
-    @property
-    def method(self):
-        """How to wait for drops, twitter or refresh"""
-        return self._method
-
-    @property
-    def twitter_user(self):
-        """Returns the twitter user we want to watch"""
-        return self._twitter_user
 
     @property
     def targets(self):
@@ -101,31 +81,11 @@ class Config(object):
 
     # Private Methods =========================================================
 
-    def _read_oauth(self):
-        """Reads the oauth section"""
-        section = 'OAuth'
-        keys = [
-            'ConsumerKey',
-            'ConsumerSecret',
-            'AccessToken',
-            'AccessTokenSecret'
-        ]
-        return {
-            keys[i]: self._config.get(
-                section, keys[i]
-            ) for i in xrange(len(keys))
-        }
-
-    # =========================================================================
-
     def _read_targets(self):
         """Returns a dictionary of target items and quantities"""
         section = 'Target'
         targets = self._config.get(section, 'Products').split(',')
-        quantities = self._config.get(section, 'Quantities').split(',')
-        return {
-            targets[i].lower(): quantities[i] for i in xrange(len(targets))
-        }
+        return [target.lower() for target in xrange(len(targets))]
 
     # =========================================================================
 
@@ -158,8 +118,6 @@ class Config(object):
 
     def debug(self):
         """Prints all attributes"""
-        print 'Oauth:', self.oauth
-        print 'Twitter User:', self.twitter_user
         print 'Base URL:', self.base_url
         print 'Targets:', self.targets
         print 'Consumer:', self.consumer
