@@ -67,9 +67,7 @@ def main():
     buyer = SeleniumBrowser(v_config, s_config)
     buyer.login()
 
-    return
-
-    drops = refresh_page(buyer.build_url(), rate=15)
+    drops = refresh_page(v_config, s_config, rate=15)
     print drops
     buyer.run(drops)
 

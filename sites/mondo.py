@@ -81,7 +81,7 @@ ITEMS = {
 # This describes the child element's tag to evaluate
 EVAL_VALUE = {
     'class': 'a',
-    'attrib': 'class',
+    'attrib': 'href',
 }
 
 # These describe how to find the add-to-cart button, as a child of the above

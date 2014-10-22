@@ -30,10 +30,16 @@ from time import sleep
 # PUBLIC FUNCTIONS
 # =============================================================================
 
-def refresh_page(page, rate=5):
+def refresh_page(config, site, rate=5):
     """Refreshes a page and checks for change in available links"""
     previous = []
     first_run = True
+
+    page = site.root
+    if not page.startswith('http://'):
+        page = 'http://{page}'.format(
+            page=page
+        )
 
     headers = {
         'User-Agent': 'Mozilla/5.0',
@@ -63,11 +69,17 @@ def refresh_page(page, rate=5):
             continue
         main_soup = BeautifulSoup(request.text)
 
-        # Each drop on the page should be inside of a "li" class, and
-        # drops seem to be the only thing inside of "li", however
-        # that's not required for this to work.
-        links = main_soup.find_all("li")
-        available = [link.find("a").get("href").lower() for link in links]
+        items = main_soup.find_all(
+            site.drop_eval_item['class'],
+            {site.drop_eval_item['attrib']: site.drop_eval_item['value']}
+        )
+
+        eval_class = site.drop_eval_value['class']
+        eval_attrib = site.drop_eval_value['attrib']
+
+        available = [
+            link.find(eval_class).get(eval_attrib).lower() for link in items
+        ]
         available.sort()
 
         if not first_run and available != previous:
@@ -75,13 +87,18 @@ def refresh_page(page, rate=5):
             # previous, we've got new drops!
             print "Available != previous"
             if available:
-                print "Available found, returning available"
-                return available
-            else:
-                # If available is now empty, we need to empty out previous
-                # So we can tell when a drop is back on.
-                print "But available is now empty. Setting previous to be empty"
-                previous = available
+                print "Available found, evaluating"
+                for keyword in config.targets:
+                    for item in available:
+                        if keyword in item:
+                            print "Returning available"
+                            # This will return on our first hit.
+                            return available
+
+            # Available is either empty, or missing all of our desired items.
+            print "Page changed, but no keywords available."
+            previous = available
+
         elif first_run:
             # This was our first check, so we'll set our compare result
             print "First run completed, poster list is:"
