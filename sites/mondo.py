@@ -79,12 +79,13 @@ ITEMS = {
 }
 
 # This describes the child element's tag to evaluate
-EVAL = {
+EVAL_VALUE = {
     'class': 'a',
     'attrib': 'class',
 }
 
-# These describe how to find the add-to-cart button, as a child of the above.
+# These describe how to find the add-to-cart button, as a child of the above
+# item.
 ADD_BTN = {
     'class': 'button',
     'attrib': 'class',
@@ -109,6 +110,13 @@ CHECKOUT_BTN = {
     'class': 'input',
     'attrib': 'name',
     'value': 'checkout'
+}
+
+# Button you click to complete checkout
+PROCESS_ORDER = {
+    'class': 'input',
+    'attrib': 'id',
+    'value': 'complete-purchase'
 }
 
 # Billing & Shipping Forms ====================================================
@@ -167,7 +175,7 @@ SHIPPING_SELECTION_BOX = {
 
 # If you need to navigate to a different page for credit card information,
 # set that here. Else, False
-CC_PAGE_BUTTON = {
+CC_PAGE_BTN = {
     'class': 'input',
     'attrib': 'id',
     'value': 'commit-button'
@@ -180,13 +188,4 @@ CREDIT_FORMS = {
     'exp_mo': 'credit_card_month',
     'exp_yr': 'credit_card_year',
     'ccv': 'credit_card_verification_value'
-}
-
-# Process Order ===============================================================
-
-# Button you click to complete checkout
-PROCESS_ORDER = {
-    'class': 'input',
-    'attrib': 'id',
-    'value': 'complete-purchase'
 }
