@@ -235,7 +235,11 @@ class SiteConfig(object):
     def _read_site_details(self):
         """Reads and sets item drop configuration"""
 
-        self._root = self.site.ROOT
+        root = self.site.ROOT
+        if root.startswith('http'):
+            root = root.replace('http://', '')
+
+        self._root = root
         self._drops = self.site.DROP_PAGES
 
     # Public Methods ==========================================================

@@ -41,6 +41,7 @@ SOFTWARE.
 from browser import SeleniumBrowser
 from config import Config
 from refresher import refresh_page
+from sites import SiteConfig
 
 # =============================================================================
 # GLOBALS
@@ -61,7 +62,12 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
-    buyer = SeleniumBrowser(v_config)
+    s_config = SiteConfig(v_config.site)
+
+    buyer = SeleniumBrowser(v_config, s_config)
+    buyer.login()
+
+    return
 
     drops = refresh_page(buyer.build_url(), rate=15)
     print drops

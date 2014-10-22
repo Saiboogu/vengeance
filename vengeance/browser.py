@@ -59,9 +59,10 @@ __all__ = [
 
 class SeleniumBrowser(object):
     """Reference implementation of the Buyer"""
-    def __init__(self, config):
+    def __init__(self, config, site_config):
         self._profile = self.disable_images()
         self._config = config
+        self._site = site_config
         self._driver = webdriver.Firefox(self._profile)
 
         self.drop_time = None
@@ -78,15 +79,29 @@ class SeleniumBrowser(object):
     def driver(self):
         return self._driver
 
-    def build_url(self, relative=''):
-        """Builds a url with our base"""
-        url = 'http://{base}/{rel}'.format(
-                base=self.config.base_url,
-                rel=relative,
-        )
-        return url
+    @property
+    def site(self):
+        return self._site
 
     # Private Methods =========================================================
+
+    # =========================================================================
+
+    def _find_element(self, element):
+        """Determines the best method to find an element, then returns it"""
+        attrib = element.get('attrib', None)
+        if attrib is 'id':
+            return self.driver.find_element_by_id(element['value'])
+        elif attrib is 'value':
+            return self.driver.find_element_by_xpath(
+                "//{html_class}[@{attrib}='{value}']".format(
+                    html_class=element['class'],
+                    attrib=attrib,
+                    value=element['value']
+                )
+            )
+
+    # =========================================================================
 
     def _fill_form_dict(self, form_dict):
         """Fills an entire form using a dictionary to dictate name & values"""
@@ -95,9 +110,9 @@ class SeleniumBrowser(object):
 
     # =========================================================================
 
-    def _fill_form_item(self, name, value):
+    def _fill_form_item(self, form_info, value):
         """Fills a single form item"""
-        form = self.driver.find_element_by_name(name)
+        form = self._find_element(form_info)
         form.send_keys(value)
 
     # =========================================================================
@@ -172,6 +187,20 @@ class SeleniumBrowser(object):
                 print "Product on {link} removed from cart.".format(
                     link=link
                 )
+
+    # =========================================================================
+
+    def build_url(self, relative=''):
+        """Builds a url with our base"""
+        if relative.startswith(self.site.root):
+            relative = relative[len(self.site.root):]
+        if relative.startswith('/'):
+            relative = relative[1:]
+        url = 'http://{base}/{rel}'.format(
+            base=self.site.root,
+            rel=relative,
+        )
+        return url
 
     # =========================================================================
 
@@ -283,6 +312,26 @@ class SeleniumBrowser(object):
         # Filter out duplicates
         good_links = list(set(good_links))
         return good_links
+
+    # =========================================================================
+
+    def login(self):
+        """Logs into the store using a provided login and password"""
+        if not self.site.login:
+            # How was this called anyway?
+            return False
+
+        self.driver.get(self.build_url(self.site.login))
+        self._fill_form_item(
+            self.site.login_user,
+            self.config.login['User']
+        )
+        self._fill_form_item(
+            self.site.login_password,
+            self.config.login['Password']
+        )
+
+        self._find_element(self.site.login_button).click()
 
     # =========================================================================
 
