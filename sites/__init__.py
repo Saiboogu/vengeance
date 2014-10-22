@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 """
 
-Vengeance
-=========
+Vengeance Sites
+===============
 
-Watches a page for updates to sale items, then attempts to purchase specified
-items if they match an item name in the config file.
+Per Site Configuration Files
 
 ## License
 
@@ -37,41 +36,24 @@ SOFTWARE.
 # IMPORTS
 # =============================================================================
 
-# Vengeance Imports
-from browser import SeleniumBrowser
-from config import Config
-from refresher import refresh_page
+# =============================================================================
+# EXPORTS
+# =============================================================================
+
+__all__ = [
+    "SiteConfig",
+]
 
 # =============================================================================
 # GLOBALS
 # =============================================================================
 
 # =============================================================================
-# MAIN
+# CLASSES
 # =============================================================================
 
+class SiteConfig(object):
+    """Controls site specific configuration options"""
 
-def main():
-    """Main script for vengeance"""
-
-    # Note that we're reading from config.ini
-    # sample_config.ini should be filled out and renamed.
-    #
-    # DO NOT COMMIT A FILLED OUT CONFIG.INI TO THE REPOSITORY.
-    v_config = Config('../config.ini')
-    v_config.debug()
-
-    buyer = SeleniumBrowser(v_config)
-
-    drops = refresh_page(buyer.build_url(), rate=15)
-    print drops
-    buyer.run(drops)
-
-    print 'done'
-
-# =============================================================================
-# RUNNER
-# =============================================================================
-
-if __name__ == '__main__':
-    main()
+    def __init__(self, site_name):
+        """Copies the site configuration data into the site config object"""
