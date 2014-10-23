@@ -84,6 +84,10 @@ EVAL_VALUE = {
     'attrib': 'href',
 }
 
+# If we can add the product to the cart right from the homepage, this should
+# be set to True.
+ADD_FROM_ROOT = True
+
 # These describe how to find the add-to-cart button, as a child of the above
 # item.
 ADD_BTN = {

@@ -104,6 +104,10 @@ class SiteConfig(object):
         return self._drop_add_button
 
     @property
+    def drop_add_from_root(self):
+        return self._drop_add_from_root
+
+    @property
     def drop_eval_item(self):
         return self._drop_eval_item
 
@@ -214,6 +218,7 @@ class SiteConfig(object):
         self._drop_evaluate = self.site.DROP_EVALUATE
         self._drop_eval_item = self.site.ITEMS
         self._drop_eval_value = self.site.EVAL_VALUE
+        self._drop_add_from_root = self.site.ADD_FROM_ROOT
         self._drop_add_button = self.site.ADD_BTN
 
     # =========================================================================
@@ -257,6 +262,7 @@ class SiteConfig(object):
         print 'Drop Evaluate:', self.drop_evaluate
         print 'Drop Eval Item:', self.drop_eval_item
         print 'Drop Eval Value:', self.drop_eval_value
+        print 'Drop Add From Root?:', self.drop_add_from_root
         print 'Drop Add Button:', self.drop_add_button
         print
         print 'Cart Page:', self.cart_page
