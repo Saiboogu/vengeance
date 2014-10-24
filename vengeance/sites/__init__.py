@@ -59,7 +59,7 @@ class SiteConfig(object):
 
     def __init__(self, site_name):
         """Copies the site configuration data into the site config object"""
-        self._site = import_module('.' + site_name, 'sites')
+        self._site = import_module('.' + site_name, 'vengeance.sites')
 
         self._read_site_details()
 
@@ -88,8 +88,8 @@ class SiteConfig(object):
         return self._cc_forms
 
     @property
-    def cc_page_button(self):
-        return self._cc_page_button
+    def checkout_2(self):
+        return self._checkout_2
 
     @property
     def checkout(self):
@@ -208,7 +208,7 @@ class SiteConfig(object):
 
     def _read_credit_card(self):
         """Reads and sets credit card form information"""
-        self._cc_page_button = self.site.CC_PAGE_BTN
+        self._checkout_2 = self.site.CHECKOUT_2
         self._cc_forms = self.site.CREDIT_FORMS
 
     # =========================================================================
@@ -267,6 +267,7 @@ class SiteConfig(object):
         print
         print 'Cart Page:', self.cart_page
         print 'Checkout:', self.checkout
+        print 'Checkout 2:', self.cc_page_button
         print 'Checkout Button:', self.checkout_button
         print 'Process Order:', self.process_order
         print
@@ -279,5 +280,4 @@ class SiteConfig(object):
         print 'Override Shipping:', self.override_shipping
         print 'Override Shipping Box:', self.override_shipping_box
         print
-        print 'CC Page Button:', self.cc_page_button
         print 'CC Form:', self.cc_forms

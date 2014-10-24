@@ -110,10 +110,18 @@ CHECKOUT = {
     'value': 'hdr-cart-actions'
 }
 
+# If you need to navigate to a different page for step 2 of checkout, set that
+# here. Else, False
+CHECKOUT_2 = {
+    'class': 'input',
+    'attrib': 'id',
+    'value': 'commit-button'
+}
+
 CHECKOUT_BTN = {
     'class': 'input',
-    'attrib': 'name',
-    'value': 'checkout'
+    'attrib': 'value',
+    'value': 'Checkout'
 }
 
 # Button you click to complete checkout
@@ -176,14 +184,6 @@ SHIPPING_SELECTION_BOX = {
 }
 
 # Credit Card Information =====================================================
-
-# If you need to navigate to a different page for credit card information,
-# set that here. Else, False
-CC_PAGE_BTN = {
-    'class': 'input',
-    'attrib': 'id',
-    'value': 'commit-button'
-}
 
 CREDIT_FORMS = {
     'first': 'credit_card_first_name',
