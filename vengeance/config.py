@@ -99,20 +99,22 @@ class Config(object):
         """Returns a dictionary of form information"""
         section = 'ConsumerInfo'
         keys = [
-            'Email',
-            'FirstName',
-            'LastName',
-            'Phone',
-            'Address',
-            'City',
-            'Country',
-            'State',
-            'Zip',
-            'CCN',
-            'ExpMo',
-            'ExpYr',
-            'Type',
-            'CVV'
+            'email',
+            'first',
+            'last',
+            'company',
+            'phone',
+            'address',
+            'address2',
+            'city',
+            'country',
+            'province',
+            'zip',
+            'ccn',
+            'exp_mo',
+            'exp_yr',
+            'type',
+            'ccv'
         ]
         return {
             keys[i]: self._config.get(
