@@ -113,7 +113,12 @@ class SeleniumBrowser(object):
             )
 
         if single:
-            return found[0]
+            try:
+                return found[0]
+            except IndexError:
+                raise NoSuchElementException(
+                    'Could not find any elements matching {elem}'.format(elem=element_dict)
+                )
         else:
             return found
 
@@ -141,16 +146,23 @@ class SeleniumBrowser(object):
 
     def _fill_form_item(self, form_info, value):
         """Fills a single form item"""
-        form = self._find_element(form_info)
+        tries = 0
 
-        try:
-            # Clear if we can
-            form.clear()
-        except WebDriverException:
-            # Happens on drop down forms
-            pass
-
-        form.send_keys(value)
+        while tries < 2:
+            try:
+                form = self._find_element(form_info)
+            except NoSuchElementException:
+                # Page is probably still loading.
+                self.driver.implicitly_wait(1)
+                tries += 1
+            else:
+                try:
+                    # Clear if we can
+                    form.clear()
+                except WebDriverException:
+                    # Happens on drop down forms
+                    pass
+                form.send_keys(value)
 
     # =========================================================================
 

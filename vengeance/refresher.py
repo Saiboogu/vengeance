@@ -92,6 +92,7 @@ def refresh_page(config, site, rate=5):
                     for item in available:
                         if keyword in item:
                             print "Returning available"
+                            print available
                             # This will return on our first hit.
                             return available
 
