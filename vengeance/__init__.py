@@ -67,9 +67,24 @@ def main():
     buyer = SeleniumBrowser(v_config, s_config)
     buyer.login()
 
-    drops = refresh_page(v_config, s_config, rate=15)
-    print drops
-    buyer.run(drops)
+    #drops = refresh_page(v_config, s_config, rate=15)
+    drops = [
+        u'/products/fargo-knit-sweater',
+        u'/products/lil-mikey-vinyl-figure-toy',
+        u'/products/gremlins-knit-sweater'
+    ]
+
+    good_drops = buyer.filter_links(drops)
+    for drop in good_drops:
+        buyer.add_to_cart(drop)
+
+    buyer.check_out()
+    buyer.check_out_2()
+    buyer.fill_cc()
+
+
+    #print drops
+    #buyer.run(drops)
 
     print 'done'
 
