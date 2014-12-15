@@ -346,8 +346,16 @@ class SeleniumBrowser(object):
                 p_page = link.split('/')[-1]
                 if product in p_page:
                     good_links.append(link)
+
         # Filter out duplicates
         good_links = list(set(good_links))
+
+        # Remove excluded products
+        for link in good_links[:]:
+            for exclude in self.config.exclusions:
+                if exclude in link:
+                    good_links.remove(link)
+
         return good_links
 
     # =========================================================================

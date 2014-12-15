@@ -67,10 +67,16 @@ def main():
     buyer = SeleniumBrowser(v_config, s_config)
     buyer.login()
 
-    drops = refresh_page(v_config, s_config, rate=10)
+    drops = []
+    while not drops:
+        drops = refresh_page(v_config, s_config, rate=10)
+        drops = buyer.filter_links(drops)
+        # At this point, drops might be empty, having been cleared of any
+        # specifically excluded items.
+        #
+        # So we'll loop back around, refreshing the page again.
 
-    good_drops = buyer.filter_links(drops)
-    for drop in good_drops:
+    for drop in drops:
         buyer.add_to_cart(drop)
 
     buyer.check_out()

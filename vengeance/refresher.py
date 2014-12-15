@@ -83,11 +83,29 @@ def refresh_page(config, site, rate=5):
         available.sort()
 
         if not first_run and available != previous:
+            previous = available[:]  # Preserve raw available list.
+
             # If this isn't our first run and the new result doesn't match
             # previous, we've got new drops!
             print "Available != previous"
             if available:
                 print "Available found, evaluating"
+
+                # First remove any exclusions
+                for keyword in config.exclusions:
+                    for item in available[:]:
+                        if keyword in item:
+                            print (
+                                "{item} matched excluded word: "
+                                "{keyword}".format(
+                                    item=item,
+                                    keyword=keyword,
+                                )
+                            )
+                            available.remove(item)
+
+            # Possible the exclusions removed all available.
+            if available:
                 for keyword in config.targets:
                     for item in available:
                         if keyword in item:
@@ -98,7 +116,6 @@ def refresh_page(config, site, rate=5):
 
             # Available is either empty, or missing all of our desired items.
             print "Page changed, but no keywords available."
-            previous = available
 
         elif first_run:
             # This was our first check, so we'll set our compare result
@@ -111,7 +128,7 @@ def refresh_page(config, site, rate=5):
         # a little bit then loop again.
 
         print "No changes detected, available list is as follows:"
-        print available
+        print previous
 
         # We should make sure we're refreshing the page at most every 5 seconds
         # but don't wait if we've taken longer than 5 seconds.

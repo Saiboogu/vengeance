@@ -59,11 +59,17 @@ class Config(object):
 
         self._site = self._config.get('Target', 'Site').lower()
         self._targets = self._read_targets()
+        self._exclusions = self._read_excludes()
 
         self._login = self._read_login()
         self._consumer = self._read_consumer()
 
     # Properties ==============================================================
+
+    @property
+    def exclusions(self):
+        """Returns the words to exclude from matched targets"""
+        return self._exclusions
 
     @property
     def site(self):
@@ -86,14 +92,6 @@ class Config(object):
         return self._consumer
 
     # Private Methods =========================================================
-
-    def _read_targets(self):
-        """Returns a dictionary of target items and quantities"""
-        section = 'Target'
-        targets = self._config.get(section, 'Products').split(',')
-        return [target.lower() for target in targets]
-
-    # =========================================================================
 
     def _read_consumer(self):
         """Returns a dictionary of form information"""
@@ -124,6 +122,14 @@ class Config(object):
 
     # =========================================================================
 
+    def _read_excludes(self):
+        """Returns a list of excluded items"""
+        section = 'Target'
+        excludes = self._config.get(section, 'Exclude').split(',')
+        return [exclusion.lower() for exclusion in excludes]
+
+    # =========================================================================
+
     def _read_login(self):
         """Returns a dictionary of the login information"""
         section = 'Login'
@@ -136,6 +142,14 @@ class Config(object):
                 section, keys[i]
             ) for i in xrange(len(keys))
         }
+
+    # =========================================================================
+
+    def _read_targets(self):
+        """Returns a list of target items"""
+        section = 'Target'
+        targets = self._config.get(section, 'Products').split(',')
+        return [target.lower() for target in targets]
 
     # Public Methods ==========================================================
 
