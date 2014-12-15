@@ -315,12 +315,6 @@ class SeleniumBrowser(object):
 
     # =========================================================================
 
-    def fill_billing(self):
-        """Fills out billing page"""
-        pass
-
-    # =========================================================================
-
     def fill_cc(self):
         """Fills out credit card information"""
         form_dict = {
@@ -377,51 +371,3 @@ class SeleniumBrowser(object):
         """The final button to click"""
         process_button = self._find_element(self.site.process_order)
         process_button.click()
-
-    # =========================================================================
-
-    def run(self, drops=None):
-        """Main runner function"""
-        self.start_time = datetime.utcnow()
-        if not self.drop_time:
-            self.drop_time = self.start_time
-        print "Delay of:", datetime.utcnow() - self.drop_time
-
-        if not drops:
-            # If we weren't handed a list of links, we gotta find them.
-            print "Heading to", self.build_url('view_category.asp?cat=12')
-            self.driver.get(self.build_url('view_category.asp?cat=12'))
-
-            # Find the link we want
-            links = self._get_links()
-            elements = True
-        else:
-            links = drops
-            elements = False
-
-        good_links = self.filter_links(links, elements)
-
-        # Add to our cart
-        for link in good_links:
-            self.add_to_cart(link)
-
-        # Head to checkout
-        self.driver.get(self.build_url('checkout.asp?step=1'))
-        print "On Shipping Page"
-
-        # Fill Shipping Page
-        self.fill_shipping()
-
-        # Leave Shipping Page
-        self.driver.find_element_by_name("Add22").click()
-        print "On Billing Page"
-
-        # Fill Billing Page
-        self.fill_billing()
-
-        # Checkout
-        self.check_out(dry_run=True)
-
-        self.finish_time = datetime.utcnow()
-        print "Total time:", self.finish_time - self.drop_time
-        print "Running time:", self.finish_time - self.start_time
