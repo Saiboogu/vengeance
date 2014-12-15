@@ -157,5 +157,6 @@ class Config(object):
         """Prints all attributes"""
         print 'Site:', self.site
         print 'Targets:', self.targets
+        print 'Excluded:', self.exclusions
         print 'Login:', self.login
         print 'Consumer:', self.consumer

@@ -94,7 +94,7 @@ def refresh_page(config, site, rate=5):
                 # First remove any exclusions
                 for keyword in config.exclusions:
                     for item in available[:]:
-                        if keyword in item:
+                        if keyword and keyword in item:
                             print (
                                 "{item} matched excluded word: "
                                 "{keyword}".format(
