@@ -163,6 +163,7 @@ class SeleniumBrowser(object):
                     # Happens on drop down forms
                     pass
                 form.send_keys(value)
+                return
 
     # =========================================================================
 

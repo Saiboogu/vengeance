@@ -67,7 +67,7 @@ def main():
     buyer = SeleniumBrowser(v_config, s_config)
     buyer.login()
 
-    drops = refresh_page(v_config, s_config, rate=30)
+    drops = refresh_page(v_config, s_config, rate=10)
 
     good_drops = buyer.filter_links(drops)
     for drop in good_drops:
