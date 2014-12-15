@@ -82,10 +82,7 @@ def main():
     buyer.check_out()
     buyer.check_out_2()
     buyer.fill_cc()
-
-
-    #print drops
-    #buyer.run(drops)
+    buyer.process_order()
 
     print 'done'
 

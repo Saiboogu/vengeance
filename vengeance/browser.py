@@ -373,6 +373,13 @@ class SeleniumBrowser(object):
 
     # =========================================================================
 
+    def process_order(self):
+        """The final button to click"""
+        process_button = self._find_element(self.site.process_order)
+        process_button.click()
+
+    # =========================================================================
+
     def run(self, drops=None):
         """Main runner function"""
         self.start_time = datetime.utcnow()
