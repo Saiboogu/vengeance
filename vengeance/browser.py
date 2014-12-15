@@ -87,8 +87,6 @@ class SeleniumBrowser(object):
 
     # Private Methods =========================================================
 
-    # =========================================================================
-
     def _find_element(self, element_dict, single=True, source=None):
         """Determines the best method to find an element, then returns it"""
         value = element_dict['value']
@@ -122,7 +120,7 @@ class SeleniumBrowser(object):
         else:
             return found
 
-
+    # =========================================================================
 
     def _find_parent(self, element, parent_tag):
         """Finds the parent of the element matching the parent_tag"""
@@ -321,7 +319,7 @@ class SeleniumBrowser(object):
             self.site.cc_forms[key]: self.config.consumer[key]
             for key in self.site.cc_forms
         }
-        self.driver.implicitly_wait(1)
+        self.driver.implicitly_wait(5)
         self._fill_form_dict(form_dict)
 
     # =========================================================================
@@ -369,5 +367,6 @@ class SeleniumBrowser(object):
 
     def process_order(self):
         """The final button to click"""
+        self.driver.implicitly_wait(5)
         process_button = self._find_element(self.site.process_order)
         process_button.click()
