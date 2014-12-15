@@ -144,15 +144,12 @@ class SeleniumBrowser(object):
 
     def _fill_form_item(self, form_info, value):
         """Fills a single form item"""
-        tries = 0
-
-        while tries < 2:
+        while True:
             try:
                 form = self._find_element(form_info)
             except NoSuchElementException:
                 # Page is probably still loading.
                 self.driver.implicitly_wait(1)
-                tries += 1
             else:
                 try:
                     # Clear if we can
