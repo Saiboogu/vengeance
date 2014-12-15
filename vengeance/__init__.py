@@ -4,12 +4,8 @@
 Vengeance
 =========
 
-Watches a twitter handle for an 'on sale now' text string, then attempts to
-buy indicated items from a store's website in a speedy fashion. Designed
-after a seller's continued, repeated refusal to update their drop system
-to something that would more discourage scalpers.
-
-Designed to hopefully be faster than the scalpers themselves.
+Watches a page for updates to sale items, then attempts to purchase specified
+items if they match an item name in the config file.
 
 ## License
 
@@ -42,9 +38,10 @@ SOFTWARE.
 # =============================================================================
 
 # Vengeance Imports
-from browser import BuyerSelenium
+from browser import SeleniumBrowser
 from config import Config
-from streamer import sale_watch
+from refresher import refresh_page
+from sites import SiteConfig
 
 # =============================================================================
 # GLOBALS
@@ -65,9 +62,27 @@ def main():
     v_config = Config('../config.ini')
     v_config.debug()
 
-    buyer = BuyerSelenium(v_config)
+    s_config = SiteConfig(v_config.site)
 
-    sale_watch(v_config, buyer)
+    buyer = SeleniumBrowser(v_config, s_config)
+    buyer.login()
+
+    drops = []
+    while not drops:
+        drops = refresh_page(v_config, s_config, rate=10)
+        drops = buyer.filter_links(drops)
+        # At this point, drops might be empty, having been cleared of any
+        # specifically excluded items.
+        #
+        # So we'll loop back around, refreshing the page again.
+
+    for drop in drops:
+        buyer.add_to_cart(drop)
+
+    buyer.check_out()
+    buyer.check_out_2()
+    buyer.fill_cc()
+    buyer.process_order()
 
     print 'done'
 

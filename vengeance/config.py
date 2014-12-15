@@ -57,31 +57,29 @@ class Config(object):
         self._config = ConfigParser.ConfigParser()
         self._config.read(config_file)
 
-        self._oauth = self._read_oauth()
-        self._twitter_user = self._config.get('Target', "TwitterHandle")
-        if self._twitter_user.startswith('@'):
-            self._twitter_user = self._twitter_user[1:]
-        self._base_url = self._config.get('Target', 'BaseURL')
+        self._site = self._config.get('Target', 'Site').lower()
         self._targets = self._read_targets()
+        self._exclusions = self._read_excludes()
 
+        self._login = self._read_login()
         self._consumer = self._read_consumer()
 
     # Properties ==============================================================
 
     @property
-    def oauth(self):
-        """Returns a dict with OAuth keys"""
-        return self._oauth
+    def exclusions(self):
+        """Returns the words to exclude from matched targets"""
+        return self._exclusions
 
     @property
-    def base_url(self):
-        """Returns the base URL we are targeting"""
-        return self._base_url
+    def site(self):
+        """Returns the site we are targeting"""
+        return self._site
 
     @property
-    def twitter_user(self):
-        """Returns the twitter user we want to watch"""
-        return self._twitter_user
+    def login(self):
+        """Returns the login information"""
+        return self._login
 
     @property
     def targets(self):
@@ -95,14 +93,49 @@ class Config(object):
 
     # Private Methods =========================================================
 
-    def _read_oauth(self):
-        """Reads the oauth section"""
-        section = 'OAuth'
+    def _read_consumer(self):
+        """Returns a dictionary of form information"""
+        section = 'ConsumerInfo'
         keys = [
-            'ConsumerKey',
-            'ConsumerSecret',
-            'AccessToken',
-            'AccessTokenSecret'
+            'email',
+            'first',
+            'last',
+            'company',
+            'phone',
+            'address',
+            'address2',
+            'city',
+            'country',
+            'province',
+            'zip',
+            'ccn',
+            'exp_mo',
+            'exp_yr',
+            'type',
+            'ccv'
+        ]
+        return {
+            keys[i]: self._config.get(
+                section, keys[i]
+            ) for i in xrange(len(keys))
+        }
+
+    # =========================================================================
+
+    def _read_excludes(self):
+        """Returns a list of excluded items"""
+        section = 'Target'
+        excludes = self._config.get(section, 'Exclude').split(',')
+        return [exclusion.lower() for exclusion in excludes]
+
+    # =========================================================================
+
+    def _read_login(self):
+        """Returns a dictionary of the login information"""
+        section = 'Login'
+        keys = [
+            'User',
+            'Password'
         ]
         return {
             keys[i]: self._config.get(
@@ -113,47 +146,17 @@ class Config(object):
     # =========================================================================
 
     def _read_targets(self):
-        """Returns a dictionary of target items and quantities"""
+        """Returns a list of target items"""
         section = 'Target'
         targets = self._config.get(section, 'Products').split(',')
-        quantities = self._config.get(section, 'Quantities').split(',')
-        return {
-            targets[i].lower(): quantities[i] for i in xrange(len(targets))
-        }
-
-    # =========================================================================
-
-    def _read_consumer(self):
-        """Returns a dictionary of form information"""
-        section = 'ConsumerInfo'
-        keys = [
-            'Email',
-            'FirstName',
-            'LastName',
-            'Phone',
-            'Address',
-            'City',
-            'Country',
-            'State',
-            'Zip',
-            'CCN',
-            'ExpMo',
-            'ExpYr',
-            'Type',
-            'CVV'
-        ]
-        return {
-            keys[i]: self._config.get(
-                section, keys[i]
-            ) for i in xrange(len(keys))
-        }
+        return [target.lower() for target in targets]
 
     # Public Methods ==========================================================
 
     def debug(self):
         """Prints all attributes"""
-        print 'Oauth:', self.oauth
-        print 'Twitter User:', self.twitter_user
-        print 'Base URL:', self.base_url
+        print 'Site:', self.site
         print 'Targets:', self.targets
+        print 'Excluded:', self.exclusions
+        print 'Login:', self.login
         print 'Consumer:', self.consumer
